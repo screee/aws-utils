@@ -1,6 +1,6 @@
 {
   "name": "@scree/aws-utils",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
@@ -29,5 +29,6 @@
   "author": {
     "name": "Lucas Wojciechowski",
     "email": "hello@lucaswoj.com"
-  }
+  },
+  "homepage": "https://github.com/screee/aws-utils"
 }
