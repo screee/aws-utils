@@ -1,6 +1,6 @@
 {
   "name": "@scree/aws-utils",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "license": "MIT",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
@@ -9,7 +9,8 @@
     "lint-fix": "scree lint-fix",
     "precommit": "scree precommit",
     "install-precommit": "scree install-precommit",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "yarn build"
   },
   "dependencies": {
     "@aws-sdk/client-cloudformation": "^3.454.0",
