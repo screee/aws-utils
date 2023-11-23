@@ -2,6 +2,7 @@ import {
   CloudFormation,
   StackEvent,
   waitUntilStackCreateComplete,
+  waitUntilStackDeleteComplete,
   waitUntilStackUpdateComplete,
 } from '@aws-sdk/client-cloudformation';
 import {isObject} from 'lodash';
@@ -12,12 +13,22 @@ interface SyncCloudformationStackOptions {
   EventHandler: (event: StackEvent) => void;
 }
 
+async function getStackSummary(cloudFormation: CloudFormation, StackName: string) {
+  const stackList = (await cloudFormation.listStacks({})).StackSummaries;
+  return stackList && stackList.find(s => s.StackName === StackName);
+}
+
 export async function syncCloudFormationStack<StackOutputs>(
   cloudFormation: CloudFormation,
   {StackName, TemplateBody, EventHandler}: SyncCloudformationStackOptions,
 ): Promise<StackOutputs> {
-  const stackList = (await cloudFormation.listStacks({})).StackSummaries;
-  const stack = stackList && stackList.find(s => s.StackName === StackName);
+  let stack = await getStackSummary(cloudFormation, StackName);
+
+  if (stack?.StackStatus === 'ROLLBACK_COMPLETE') {
+    await cloudFormation.deleteStack({StackName});
+    await waitUntilStackDeleteComplete({client: cloudFormation, maxWaitTime: 60 * 5}, {StackName});
+    stack = await getStackSummary(cloudFormation, StackName);
+  }
 
   if (!stack || stack.StackStatus === 'DELETE_COMPLETE') {
     await cloudFormation.createStack({
