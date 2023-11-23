@@ -1,7 +1,5 @@
 import {PutObjectCommandInput, S3} from '@aws-sdk/client-s3';
-import chalk from 'chalk';
 import Path from 'path';
-import PromiseThrottle from 'promise-throttle';
 import {getS3Etag} from './getS3Etag';
 import {getS3ObjectVersions} from './getS3ObjectVersions';
 
@@ -17,8 +15,6 @@ export interface SyncS3ObjectOutput {
   S3ObjectVersion?: string;
 }
 
-const promiseThrottle = new PromiseThrottle({requestsPerSecond: 100});
-
 export async function syncS3Object(
   s3: S3,
   {Bucket, Key, Body, ...request}: SyncS3ObjectOptions,
@@ -29,15 +25,12 @@ export async function syncS3Object(
   const prevEtag = prevObject?.ETag && JSON.parse(prevObject?.ETag);
 
   if (!prevObject || prevEtag !== etag) {
-    const {VersionId, ETag: actualEtagJson} = await promiseThrottle.add(async () => {
-      console.log(chalk.dim(`Upload ${Key}`));
-      return s3.putObject({
-        Bucket: Bucket,
-        Key: Key,
-        Body: Body,
-        ContentType: getContentType(Path.extname(Key)),
-        ...request,
-      });
+    const {VersionId, ETag: actualEtagJson} = await s3.putObject({
+      Bucket: Bucket,
+      Key: Key,
+      Body: Body,
+      ContentType: getContentType(Path.extname(Key)),
+      ...request,
     });
 
     const actualEtag = JSON.parse(actualEtagJson ?? '""');
@@ -56,7 +49,6 @@ export async function syncS3Object(
       S3ObjectVersion: VersionId,
     };
   } else {
-    console.log(chalk.dim(`Upload skip ${Key}`));
     return {
       S3Bucket: Bucket,
       S3Key: Key,

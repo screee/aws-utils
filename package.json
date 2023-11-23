@@ -2,11 +2,27 @@
   "name": "@scree/aws-utils",
   "version": "0.1.0",
   "license": "MIT",
-  "private": false,
+  "main": "dist/index.js",
   "scripts": {
     "lint": "scree lint",
     "lint-fix": "scree lint-fix",
     "precommit": "scree precommit",
     "install-precommit": "scree install-precommit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.454.0",
+    "@aws-sdk/client-s3": "^3.456.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@scree/quality": "^0.15.0",
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^20.9.4",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

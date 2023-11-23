@@ -20,8 +20,6 @@ export async function syncCloudFormationStack<StackOutputs>(
   const stack = stackList && stackList.find(s => s.StackName === StackName);
 
   if (!stack || stack.StackStatus === 'DELETE_COMPLETE') {
-    console.log('Creating stack');
-
     await cloudFormation.createStack({
       StackName: StackName,
       TemplateBody: JSON.stringify(TemplateBody),
@@ -36,10 +34,7 @@ export async function syncCloudFormationStack<StackOutputs>(
     );
 
     removeEventHandler();
-
-    console.log('Stack created');
   } else {
-    console.log('Updating stack');
     try {
       await cloudFormation.updateStack({
         StackName: StackName,
@@ -52,7 +47,7 @@ export async function syncCloudFormationStack<StackOutputs>(
         'message' in error &&
         error.message === 'No updates are to be performed.'
       ) {
-        console.log('Stack unchanged');
+        // Do nothing
       } else {
         throw error;
       }
@@ -66,8 +61,6 @@ export async function syncCloudFormationStack<StackOutputs>(
     );
 
     removeEventHandler();
-
-    console.log('Stack updated');
   }
 
   const response = await cloudFormation.describeStacks({StackName: StackName});
