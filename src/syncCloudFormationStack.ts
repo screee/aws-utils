@@ -31,24 +31,31 @@ export async function syncCloudFormationStack<StackOutputs>(
   }
 
   if (!stack || stack.StackStatus === 'DELETE_COMPLETE') {
+    const removeEventHandler = addEventHandler(cloudFormation, {StackName, EventHandler});
+
     await cloudFormation.createStack({
       StackName,
       TemplateBody,
       Capabilities: ['CAPABILITY_IAM'],
     });
 
-    const removeEventHandler = addEventHandler(cloudFormation, {StackName, EventHandler});
-
     await waitUntilStackCreateComplete({client: cloudFormation, maxWaitTime: 60 * 5}, {StackName});
 
     removeEventHandler();
   } else {
+    const removeEventHandler = addEventHandler(cloudFormation, {EventHandler, StackName});
+
     try {
       await cloudFormation.updateStack({
         StackName,
         TemplateBody,
         Capabilities: ['CAPABILITY_IAM'],
       });
+
+      await waitUntilStackUpdateComplete(
+        {client: cloudFormation, maxWaitTime: 60 * 5},
+        {StackName},
+      );
     } catch (error) {
       if (
         isObject(error) &&
@@ -60,10 +67,6 @@ export async function syncCloudFormationStack<StackOutputs>(
         throw error;
       }
     }
-
-    const removeEventHandler = addEventHandler(cloudFormation, {EventHandler, StackName});
-
-    await waitUntilStackUpdateComplete({client: cloudFormation, maxWaitTime: 60 * 5}, {StackName});
 
     removeEventHandler();
   }
