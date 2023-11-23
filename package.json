@@ -25,5 +25,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "author": {
+    "name": "Lucas Wojciechowski",
+    "email": "hello@lucaswoj.com"
   }
 }
