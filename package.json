@@ -2,6 +2,7 @@
   "name": "@scree/aws-utils",
   "version": "0.2.0",
   "license": "MIT",
+  "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "scripts": {
     "lint": "scree lint",
