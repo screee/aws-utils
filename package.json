@@ -1,0 +1,12 @@
+{
+  "name": "@scree/aws-utils",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "lint": "scree lint",
+    "lint-fix": "scree lint-fix",
+    "precommit": "scree precommit",
+    "install-precommit": "scree install-precommit"
+  }
+}
