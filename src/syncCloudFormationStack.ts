@@ -21,24 +21,21 @@ export async function syncCloudFormationStack<StackOutputs>(
 
   if (!stack || stack.StackStatus === 'DELETE_COMPLETE') {
     await cloudFormation.createStack({
-      StackName: StackName,
-      TemplateBody: JSON.stringify(TemplateBody),
+      StackName,
+      TemplateBody,
       Capabilities: ['CAPABILITY_IAM'],
     });
 
     const removeEventHandler = addEventHandler(cloudFormation, {StackName, EventHandler});
 
-    await waitUntilStackCreateComplete(
-      {client: cloudFormation, maxWaitTime: 60 * 5},
-      {StackName: StackName},
-    );
+    await waitUntilStackCreateComplete({client: cloudFormation, maxWaitTime: 60 * 5}, {StackName});
 
     removeEventHandler();
   } else {
     try {
       await cloudFormation.updateStack({
-        StackName: StackName,
-        TemplateBody: JSON.stringify(TemplateBody),
+        StackName,
+        TemplateBody,
         Capabilities: ['CAPABILITY_IAM'],
       });
     } catch (error) {
@@ -55,15 +52,12 @@ export async function syncCloudFormationStack<StackOutputs>(
 
     const removeEventHandler = addEventHandler(cloudFormation, {EventHandler, StackName});
 
-    await waitUntilStackUpdateComplete(
-      {client: cloudFormation, maxWaitTime: 60 * 5},
-      {StackName: StackName},
-    );
+    await waitUntilStackUpdateComplete({client: cloudFormation, maxWaitTime: 60 * 5}, {StackName});
 
     removeEventHandler();
   }
 
-  const response = await cloudFormation.describeStacks({StackName: StackName});
+  const response = await cloudFormation.describeStacks({StackName});
   return Object.fromEntries(
     response.Stacks?.[0].Outputs?.map(output => [output.OutputKey, output.OutputValue]) ?? [],
   );
